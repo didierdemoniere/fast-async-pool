@@ -14,27 +14,35 @@ export function asyncPool<T, U>(
   if (array.length <= limit) {
     return Promise.resolve().then(() => Promise.all(array.map(fn)));
   }
-
-  return new Promise((resolve) => {
+  let failed = false;
+  return new Promise<U[]>((resolve, reject) => {
     const results: U[] = new Array(array.length);
     let index = 0;
     let executing = 0;
 
     const tick = () => {
-      if (index < array.length) {
-        const currentIndex = index;
-        index++;
-        executing++;
+      if (!failed) {
+        if (index < array.length) {
+          const currentIndex = index;
+          index++;
+          executing++;
 
-        Promise.resolve(fn(array[currentIndex], currentIndex, array)).then(
-          (result) => {
-            results[currentIndex] = result;
-            executing--;
-            tick();
-          },
-        );
-      } else if (executing === 0) {
-        resolve(results);
+          Promise.resolve()
+            .then(() => fn(array[currentIndex], currentIndex, array))
+            .then(
+              (result) => {
+                results[currentIndex] = result;
+                executing--;
+                tick();
+              },
+              (error) => {
+                failed = true;
+                reject(error);
+              },
+            );
+        } else if (executing === 0) {
+          resolve(results);
+        }
       }
     };
 
