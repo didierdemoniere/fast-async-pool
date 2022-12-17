@@ -1,6 +1,6 @@
 {
   "name": "fast-async-pool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Run multiple promise-returning & async functions with limited concurrency with low overhead",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
